@@ -2,3 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+.swiper-button-prev:after, .swiper-button-next:after{
+    color: #7c3aed;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.swiper-pagination-bullet{
+    opacity: 1 !important;
+    background-color: grey !important;
+    border: 1px solid black;
+    width: 1rem !important;
+    height: 1rem !important;
+}
+.swiper-pagination-bullet-active{
+    background-color: #7c3aed !important
+}
+

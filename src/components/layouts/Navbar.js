@@ -1,21 +1,24 @@
-import * as React from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { Button } from "@mui/material";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { cartContext } from "./AppShell";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Image from "next/image";
+import { useContext, useEffect, useState } from "react";
+import { CartContext } from "@/context/cart.context";
+import { CategoryContext } from "@/context/category.context";
+import CookieUtils from "../../../utils/cookie.utils";
+import { useRouter } from "next/router";
 
+const cookie = new CookieUtils();
 const Search = styled("div")(({ theme }) => ({
     position: "relative",
     borderRadius: theme.shape.borderRadius,
@@ -59,29 +62,52 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Navbar() {
-    const [category, setCategory] = React.useState("");
-    const [state, setState] = React.useContext(cartContext);
+    const [isCartOpen, setIsCartOpen] = useContext(CartContext);
+    const [category, setCategory] = useContext(CategoryContext);
+    const [isLogin, setIsLogin] = useState(false);
+    const [userName, setUserName] = useState("");
+    const router = useRouter();
 
-    const handleCart = ()=>{
-        setState(!state)
-    }
+    const checkLogin = () => {
+        const dataCookie = cookie.getCookie("user-access");
+        if (dataCookie) {
+            setIsLogin(true);
+            setUserName(dataCookie.name);
+        } else {
+            setIsLogin(false);
+        }
+    };
+
+    const handleCart = () => {
+        setIsCartOpen(!isCartOpen);
+    };
 
     const handleChange = (event) => {
         setCategory(event.target.value);
     };
+
+    const handleClick = ()=>{
+        if(isLogin) {
+            cookie.removeCookie("user-access")
+            router.reload()
+        }
+        else if(!isLogin) router.push("/login")
+    }
+
+    useEffect(() => {
+        checkLogin();
+    }, []);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar className="grid grid-cols-12 gap-2">
                     {/* Logo  */}
-                    <IconButton size="large" edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
-                        <MenuIcon />
-                    </IconButton>
-                    {/* Company Name */}
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}>
-                        Jimboz Store
-                    </Typography>
+                    <div className="p-0 m-0 flex col-span-2 w-full justify-center">
+                        <div className="w-1/5 h-12 relative">
+                            <Image src={"/icon/largeicon.png"} fill alt="icon" sizes="100" />
+                        </div>
+                    </div>
                     {/* Filter */}
                     <FormControl fullWidth variant="filled" className="bg-white rounded-md" size="small">
                         <InputLabel id="demo-simple-select-label">Category</InputLabel>
@@ -92,6 +118,9 @@ export default function Navbar() {
                             <MenuItem value={"Biography"}>Biography</MenuItem>
                             <MenuItem value={"School"}>Novel</MenuItem>
                             <MenuItem value={"Religion"}>Religion</MenuItem>
+                            <MenuItem value={""} className="bg-slate-300">
+                                Clear Filter
+                            </MenuItem>
                         </Select>
                     </FormControl>
                     {/* Search */}
@@ -103,10 +132,12 @@ export default function Navbar() {
                     </Search>
                     {/* Cart */}
                     <IconButton color="primary" aria-label="add to shopping cart" className="text-white col-start-10 hover:rotate-12 hover:text-slate-300 transition-all" onClick={handleCart}>
-                        <ShoppingCartIcon  />
+                        <ShoppingCartIcon />
                     </IconButton>
                     {/* Logout Button */}
-                    <Button variant="contained" className="bg-red-600 rounded-full w-1/2 hover:bg-red-800 p-2">Logout</Button>
+                    <Button variant="contained" className={`${isLogin ? "bg-red-600 hover:bg-red-800" : "bg-green-600 hover:bg-green-800"} rounded-full w-1/2  p-2`} onClick={handleClick}>
+                        {isLogin ? "LogOut" : "Login"}
+                    </Button>
                 </Toolbar>
             </AppBar>
         </Box>
