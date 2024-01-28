@@ -8,10 +8,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Image from "next/image";
 import { CartContext } from "@/context/cart.context";
 import CartApi from "@/api/cart.api";
+import { AlertContext } from "@/context/alert.context";
+import Link from "next/link";
 
 export default function Cart() {
     const cartApi = new CartApi();
     const [isCartOpen, setIsCartOpen, cartItem, setCartItem] = useContext(CartContext);
+    const [isAlertOpen,setIsAlertOpen,alertMessage,setAlertMessage,alertColor,setAlertColor] = useContext(AlertContext)
     const [] = useContext(CartContext);
     const [totalPrice, setTotalPrice] = useState([]);
     const [totalQuantity, setTotalQuantity] = useState("");
@@ -42,6 +45,9 @@ export default function Cart() {
         event.preventDefault();
         const response = await cartApi.delete(item_id);
         setCartItem(response[0].products);
+        setIsAlertOpen(true)
+        setAlertMessage("Item berhasil dihapus")
+        setAlertColor("error")
     };
     useEffect(() => {
         sumFunction();
@@ -85,7 +91,9 @@ export default function Cart() {
                 <p className="text-3xl font-bold text-indigo-500">
                     Rp. {totalPrice} <span className="italic text-base text-slate-500">({totalQuantity} Item)</span>
                 </p>
-                <Button className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full px-4">Checkout</Button>
+                <Link href={"/payment"}>
+                <Button className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full px-4" onClick={()=>setIsCartOpen(false)}>Checkout</Button>
+                </Link>
             </div>
         </Box>
     );

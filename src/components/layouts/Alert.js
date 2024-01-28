@@ -13,7 +13,6 @@ const MyAlert = () => {
         }, 2000);
     };
     useEffect(()=>{
-        console.log(isAlertOpen)
         handleAlertOpen()
     },[isAlertOpen===true])
     return (

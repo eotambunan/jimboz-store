@@ -52,6 +52,22 @@ class Cart {
             throw error;
         }
     }
+    async deleteCart() {
+        try {
+            if (dataCookie) {
+                const response = await axios.delete(`http://localhost:3000/v1/deletecart`, {
+                    data: {
+                        user_id: dataCookie.id,
+                    },
+                });
+                return response.data.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = Cart;

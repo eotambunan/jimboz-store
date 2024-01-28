@@ -1,16 +1,26 @@
 import LockIcon from "@mui/icons-material/Lock";
 import GoogleIcon from "@mui/icons-material/Google";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import LoginForm from "@/components/elements/LoginForm";
 import { Button, Collapse } from "@mui/material";
 import RegisterForm from "@/components/elements/RegisterForm";
+import { useRouter } from "next/router";
+import Oauth from "@/api/oauth.api";
 
 const Login = () => {
+    const oauth = new Oauth
     const [isRegister, setIsRegister] = useState(false);
+    const router = useRouter()
     const switchForm = () => {
         setIsRegister(!isRegister);
     };
+    const handleClick = ()=>{
+        router.push("http://localhost:3000/auth/google")
+    }
+    useEffect(()=>{
+        oauth.login()
+    },[router.query.user])
 
     return (
         <>
@@ -45,7 +55,7 @@ const Login = () => {
                             </Collapse>
                         </div>
                         {/* <RegisterForm switchForm={switchForm} /> */}
-                        <Button variant="contained" className="rounded-full border-8 border-black bg-indigo-300 hover:bg-indigo-500 text-slate-700 row-span-2 mt-8 h-10">
+                        <Button variant="contained" className="rounded-full border-8 border-black bg-indigo-300 hover:bg-indigo-500 text-slate-700 row-span-2 mt-8 h-10" onClick={handleClick}>
                             <GoogleIcon className="mr-2" />
                             Login by Google
                         </Button>

@@ -35,6 +35,7 @@ const MyCard = ({ data }) => {
                 const response = await cartApi.get()
                 setIsAlertOpen(true)
                 setAlertMessage("Produk berhasil ditambahkan")
+                setAlertColor("success")
                 setCartItem(response[0].products)
             } else {throw new Error}
         } catch (error) {

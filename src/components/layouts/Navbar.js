@@ -9,14 +9,17 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { Button } from "@mui/material";
+import { Badge, Button, FormHelperText } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "@/context/cart.context";
 import { CategoryContext } from "@/context/category.context";
 import CookieUtils from "../../../utils/cookie.utils";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import { RouteRounded } from "@mui/icons-material";
 
 const cookie = new CookieUtils();
 const Search = styled("div")(({ theme }) => ({
@@ -62,11 +65,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Navbar() {
-    const [isCartOpen, setIsCartOpen] = useContext(CartContext);
+    const [isCartOpen, setIsCartOpen, cartItem, setCartItem] = useContext(CartContext);
     const [category, setCategory] = useContext(CategoryContext);
     const [isLogin, setIsLogin] = useState(false);
     const [userName, setUserName] = useState("");
     const router = useRouter();
+    const totalCartItem = cartItem.reduce((a, b) => {
+        return (a += b.quantity);
+    }, 0);
 
     const checkLogin = () => {
         const dataCookie = cookie.getCookie("user-access");
@@ -86,12 +92,14 @@ export default function Navbar() {
         setCategory(event.target.value);
     };
 
-    const handleClick = ()=>{
-        if(isLogin) {
-            cookie.removeCookie("user-access")
-            router.reload()
-        }
-        else if(!isLogin) router.push("/login")
+    const handleClick = () => {
+        if (isLogin) {
+            cookie.removeCookie("user-access");
+            router.reload();
+        } else if (!isLogin) router.push("/login");
+    };
+    const handleOrder = ()=>{
+        router.push("/order")
     }
 
     useEffect(() => {
@@ -105,22 +113,27 @@ export default function Navbar() {
                     {/* Logo  */}
                     <div className="p-0 m-0 flex col-span-2 w-full justify-center">
                         <div className="w-1/5 h-12 relative">
+                            <Link href={"/"}>
                             <Image src={"/icon/largeicon.png"} fill alt="icon" sizes="100" />
+                            </Link>
                         </div>
                     </div>
                     {/* Filter */}
-                    <FormControl fullWidth variant="filled" className="bg-white rounded-md" size="small">
-                        <InputLabel id="demo-simple-select-label">Category</InputLabel>
-                        <Select labelId="demo-simple-select-label" id="demo-simple-select" value={category} onChange={handleChange}>
+                    <FormControl className="bg-white rounded-md" size="small">
+                        {/* <InputLabel id="demo-simple-select-label">Category</InputLabel> */}
+                        <Select displayEmpty labelId="demo-simple-select-label" id="demo-simple-select" value={category} onChange={handleChange}>
+                            <MenuItem value={""} className="bg-slate-300" hidden={category.length===0}>
+                                Clear Filter
+                            </MenuItem>
+                            <MenuItem value={""} disabled hidden>
+                            {category.length>0 ? category : "Category"}
+                            </MenuItem>
                             <MenuItem value={"Comic"}>Comic</MenuItem>
                             <MenuItem value={"Children"}>Children</MenuItem>
                             <MenuItem value={"Novel"}>Novel</MenuItem>
                             <MenuItem value={"Biography"}>Biography</MenuItem>
                             <MenuItem value={"School"}>Novel</MenuItem>
                             <MenuItem value={"Religion"}>Religion</MenuItem>
-                            <MenuItem value={""} className="bg-slate-300">
-                                Clear Filter
-                            </MenuItem>
                         </Select>
                     </FormControl>
                     {/* Search */}
@@ -130,10 +143,17 @@ export default function Navbar() {
                         </SearchIconWrapper>
                         <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
                     </Search>
-                    {/* Cart */}
-                    <IconButton color="primary" aria-label="add to shopping cart" className="text-white col-start-10 hover:rotate-12 hover:text-slate-300 transition-all" onClick={handleCart}>
-                        <ShoppingCartIcon />
-                    </IconButton>
+                    {/* Icon */}
+                    <div className="col-span-2 flex justify-evenly mt-1">
+                        <Badge badgeContent={totalCartItem} color="secondary">
+                            <IconButton color="primary" aria-label="add to shopping cart" className="text-white col-start-10 hover:rotate-12 hover:text-slate-300 transition-all" onClick={handleCart}>
+                                <ShoppingCartIcon />
+                            </IconButton>
+                        </Badge>
+                            <IconButton color="primary" aria-label="add to shopping cart" className="text-white col-start-10 hover:rotate-12 hover:text-slate-300 transition-all" onClick={handleOrder}>
+                                <ChecklistRtlIcon />
+                            </IconButton>
+                    </div>
                     {/* Logout Button */}
                     <Button variant="contained" className={`${isLogin ? "bg-red-600 hover:bg-red-800" : "bg-green-600 hover:bg-green-800"} rounded-full w-1/2  p-2`} onClick={handleClick}>
                         {isLogin ? "LogOut" : "Login"}

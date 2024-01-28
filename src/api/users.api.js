@@ -7,7 +7,7 @@ class Users{
             const response = await axios.post(`${url}/users/registration`,{
                 name : payload.name,
                 email : payload.email,
-                password : payload.name,
+                password : payload.password,
             })
             return response.data
         } catch (error) {
